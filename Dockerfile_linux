@@ -59,6 +59,7 @@ RUN . /etc/os-release \
 	&& rm packages-microsoft-prod.deb \
 	&& apt-get update \
 	&& apt-get install powershell
+RUN git clone https://github.com/Kraust/powershell.git /root/.config/powershell
 
 ENV SHELL=/opt/microsoft/powershell/7/pwsh
 
