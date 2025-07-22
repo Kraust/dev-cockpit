@@ -48,7 +48,18 @@ RUN curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | ba
 # Nvim
 RUN git clone https://github.com/Kraust/nvimdots.git /root/.config/nvim
 
-# Shell
-ENV SHELL=/bin/bash
+# Powershell
+RUN apt-get update && apt-get install -y \
+	wget  \
+	apt-transport-https  \
+	software-properties-common
+RUN . /etc/os-release \
+	&& wget -q https://packages.microsoft.com/config/ubuntu/$VERSION_ID/packages-microsoft-prod.deb \
+	&& dpkg -i packages-microsoft-prod.deb \
+	&& rm packages-microsoft-prod.deb \
+	&& apt-get update \
+	&& apt-get install powershell
+
+ENV SHELL=/opt/microsoft/powershell/7/pwsh
 
 CMD [ "nvim", "--headless", "--listen", "0.0.0.0:9999" ]
