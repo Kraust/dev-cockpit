@@ -11,7 +11,11 @@ docker run --rm --privileged -it -v /var/run/docker.sock:/var/run/docker.sock --
 
 ### Docker Compose
 
-- TBD
+Note, you may want to change environment and mounts to match your environment. This setup supports deploying containers in a docker-in-docker environment but be careful because docker-in-docker assumes volume mounts on the host and not in the child container.
+
+```bash
+docker compose up
+```
 
 ## Windows
 
@@ -19,6 +23,5 @@ docker run --rm --privileged -it -v /var/run/docker.sock:/var/run/docker.sock --
 
 ## TODO
 
-- Docker Compose
-- Copy SSH Keys In
 - Windows Dockerfile
+- Powershell for Shell instead of Bash
