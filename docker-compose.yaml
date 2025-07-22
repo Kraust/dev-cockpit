@@ -1,0 +1,15 @@
+services:
+  dev_cockpit:
+    image: dev-cockpit:latest
+    container_name: dev_cockpit
+    privileged: true
+    network_mode: host
+    restart: always
+    environment:
+      - GIT_CONFIG_GLOBAL=~/.config/gitconfig/gitconfig
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ~/.ssh:/root/.ssh
+      - ~/.config/gitconfig:/root/.config/gitconfig
+      - /mnt/data:/mnt/data
+    working_dir: /mnt/data
