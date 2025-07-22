@@ -1,0 +1,51 @@
+FROM ubuntu:24.04
+
+COPY gitconfig /root/.gitconfig
+
+RUN apt-get update \
+	&& apt-get install -y software-properties-common
+
+RUN add-apt-repository ppa:neovim-ppa/unstable \
+	&& apt-get update \
+	&& apt-get install -y neovim
+
+RUN apt-get update \
+	&& apt-get install -y python3-dev python3-pip git
+
+RUN mkdir -p /root/.ssh && ssh-keyscan github.com >> /root/.ssh/known_hosts
+
+RUN mkdir -p /root/.config
+
+RUN apt-get update && apt-get install -y \
+	git \
+	unzip \
+	make \
+	cmake \
+	gcc \
+	g++ \
+	clang \
+	zoxide \
+	ripgrep \
+	fd-find \
+	fzf \
+	yarn \
+	lldb \
+	curl \
+	python3-pip \
+	python3-venv \
+	golang \
+	openjdk-21-jdk
+
+# Rust
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y && . /root/.bashrc && cargo install tree-sitter-cli
+
+# Node
+RUN curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash && . ~/.bashrc && nvm install 18 && nvm use 18
+
+# Nvim
+RUN git clone https://github.com/Kraust/nvimdots.git /root/.config/nvim
+
+# Shell
+ENV SHELL=/bin/bash
+
+CMD [ "nvim", "--headless", "--listen", "0.0.0.0:9999" ]
