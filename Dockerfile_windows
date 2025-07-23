@@ -101,8 +101,17 @@ RUN python -m pip install pre-commit==3.8.0
 RUN python -m pip install clang-format==18.1.8
 RUN python -m pip install clang-tidy==18.1.8
 
+# Cargo
+RUN cargo install starship
+
 # Allow Unsafe git Paths
 RUN git config --global --add safe.directory "*"
+
+# Nvim
+RUN mkdir -p /opt/AppData/Local && git clone https://github.com/Kraust/nvimdots.git /opt/AppData/Local/nvim
+
+# Powershell
+RUN git clone https://github.com/Kraust/powershell.git /opt/Documents/Powershell
 
 WORKDIR /
 
