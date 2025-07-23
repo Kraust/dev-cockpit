@@ -6,10 +6,15 @@ services:
     network_mode: host
     restart: always
     environment:
-      - GIT_CONFIG_GLOBAL=~/.config/gitconfig/gitconfig
+      - GIT_CONFIG_GLOBAL=/root/.config/gitconfig/gitconfig
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ~/.ssh:/root/.ssh
-      - ~/.config/gitconfig:/root/.config/gitconfig
-      - /mnt/data:/mnt/data
-    working_dir: /mnt/data
+      - ~/.config/gitconfig:/opt/.config/gitconfig
+      - /home:/home
+      - /home3:/home3
+      - /Eng:/Eng
+      - root:/root
+    working_dir: /
+volumes:
+  root:
