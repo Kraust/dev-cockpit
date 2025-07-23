@@ -1,0 +1,111 @@
+filetype=dockerfile
+
+FROM mcr.microsoft.com/dotnet/framework/sdk:4.8.1
+
+SHELL ["powershell"]
+
+WORKDIR /tmp
+
+# Install Chocolatey first.
+RUN powershell Set-ExecutionPolicy Bypass -Scope Process -Force; \
+  [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; \
+  iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+
+# Install Visual Studio + SDK + WDK. Does not work from chocolatey as we need a specific version.
+RUN Invoke-WebRequest "https://download.visualstudio.microsoft.com/download/pr/864470e6-2c8e-4dee-b2f0-c527af35237a/86da58fe51fab6219d3448de8d615c31e2f82de6ff6e416c4b28353ff3011565/vs_Professional.exe" -OutFile "$env:TEMP\vs_Professional.exe" -UseBasicParsing
+RUN & "$env:TEMP\vs_Professional.exe" \
+  --quiet \
+  --wait \
+  --norestart \
+  --noUpdateInstaller \
+  --add Microsoft.VisualStudio.Component.CoreEditor \
+  --add Microsoft.VisualStudio.Workload.CoreEditor \
+  --add Microsoft.VisualStudio.Component.NuGet \
+  --add Microsoft.VisualStudio.Component.Roslyn.Compiler \
+  --add Microsoft.Component.MSBuild \
+  --add Microsoft.VisualStudio.Component.TextTemplating \
+  --add Microsoft.VisualStudio.Component.IntelliCode \
+  --add Component.Microsoft.VisualStudio.LiveShare \
+  --add Microsoft.VisualStudio.Component.VC.CoreIde \
+  --add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 \
+  --add Microsoft.VisualStudio.Component.Graphics.Tools \
+  --add Microsoft.VisualStudio.Component.VC.DiagnosticTools \
+  --add Microsoft.VisualStudio.Component.Windows10SDK.18362 \
+  --add Microsoft.VisualStudio.Component.Debugger.JustInTime \
+  --add Microsoft.VisualStudio.Component.VC.Redist.14.Latest \
+  --add Microsoft.VisualStudio.ComponentGroup.NativeDesktop.Core \
+  --add Microsoft.VisualStudio.ComponentGroup.WebToolsExtensions.CMake \
+  --add Microsoft.VisualStudio.Component.VC.CMake.Project \
+  --add Microsoft.VisualStudio.Component.VC.ATL \
+  --add Microsoft.VisualStudio.Component.VC.TestAdapterForBoostTest \
+  --add Microsoft.VisualStudio.Component.VC.TestAdapterForGoogleTest \
+  --add Microsoft.VisualStudio.Component.VC.ASAN \
+  --add Microsoft.VisualStudio.Component.VC.Llvm.ClangToolset \
+  --add Microsoft.VisualStudio.Component.VC.Llvm.Clang \
+  --add Microsoft.Component.VC.Runtime.UCRTSDK \
+  --add Microsoft.VisualStudio.Workload.NativeDesktop \
+  --add Microsoft.VisualStudio.Component.VC.Runtimes.x86.x64.Spectre \
+  --add Microsoft.VisualStudio.Component.WinXP \
+  | Out-Default
+
+# Windows SDK for Windows 11 (10.0.22000.194)
+RUN Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/?linkid=2166289" -OutFile "$env:TEMP\WDKSetup.exe" -UseBasicParsing
+RUN & "$env:TEMP\WDKSetup.exe" /quiet
+
+# Windows SDK for Windows 11 (10.0.22000.194)
+RUN Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/?linkid=2173743" -OutFile "$env:TEMP\SDKSetup.exe"
+RUN & "$env:TEMP\SDKSetup.exe" /quiet
+
+# Install VS Integration
+RUN & "'C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\Common7\IDE\VSIXInstaller.exe'" \
+    /q /a "'C:\Program Files (x86)\Windows Kits\10\Vsix\VS2019\WDK.vsix'"
+
+# Install clang-power-tools
+RUN Invoke-WebRequest -Uri "http://nexus.eng.cspi.com:8081/repository/aria_thirdparty/src/ClangPowerTools.vsix" -OutFile "$env:TEMP\ClangPowerTools.vsix"
+RUN & "'C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\Common7\IDE\VSIXInstaller.exe'" \
+    /q /a "'$env:TEMP\ClangPowerTools.vsix'"
+
+# Install clang-build.ps1
+RUN mkdir "C:\clang-power-tools"
+RUN Invoke-WebRequest -Uri "http://gitlab.eng.cspi.com:8888/3rdParty-Repositories/clang-power-tools/-/raw/master/ClangPowerTools/ClangPowerTools/Tooling/v1/clang-build.ps1" -OutFile "C:\clang-power-tools\clang-build.ps1"
+
+# Install Chocolatey packages
+RUN choco install cmake --version=3.29.8 -y
+RUN choco install ninja --version=1.12.1 -y
+RUN choco install strawberryperl --version=5.38.2.2 -y
+RUN choco install git --version=2.46.0 -y
+RUN choco install pkgconfiglite --version=0.28 -y
+RUN choco install python --version=3.12.5 -y
+RUN choco install openjdk --version=22.0.2 -y
+RUN chock install neovim -y
+RUN choco install pwsh -y
+RUN choco install golang -y
+RUN choco install rust -y
+RUN choco install fzf -y
+RUN choco install ripgrep -y
+RUN choco install fd -y
+RUN choco install nodejs -y
+RUN choco install tree-sitter -y
+
+# Install python packages
+RUN python -m pip install --upgrade pip
+RUN python -m pip install setuptools==69.0.3
+RUN python -m pip install virtualenv==20.25.0
+RUN python -m pip install swig==4.2.0
+RUN python -m pip install meson==1.3.1
+RUN python -m pip install ninja==1.11.1.1
+RUN python -m pip install cmake==3.28.1
+RUN python -m pip install build==1.0.3
+RUN python -m pip install Cython==3.0.6
+RUN python -m pip install pre-commit==3.8.0
+RUN python -m pip install clang-format==18.1.8
+RUN python -m pip install clang-tidy==18.1.8
+
+# Allow Unsafe git Paths
+RUN git config --global --add safe.directory "*"
+
+WORKDIR /
+
+SHELL ["pwsh"]
+
+CMD [ "nvim", "--headless", "--listen", "0.0.0.0:9999" ]
