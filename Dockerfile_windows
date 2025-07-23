@@ -77,7 +77,7 @@ RUN choco install git --version=2.46.0 -y
 RUN choco install pkgconfiglite --version=0.28 -y
 RUN choco install python --version=3.12.5 -y
 RUN choco install openjdk --version=22.0.2 -y
-RUN chock install neovim -y
+RUN choco install neovim -y
 RUN choco install pwsh -y
 RUN choco install golang -y
 RUN choco install rust -y
