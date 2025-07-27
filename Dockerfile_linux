@@ -42,7 +42,7 @@ RUN curl -sSf https://get.docker.com | sh
 
 # Rust
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y && . /root/.bashrc \
-	&& cargo install tree-sitter-cli
+	&& cargo install tree-sitter-cli \
 	&& cargo install starship
 
 # Node
