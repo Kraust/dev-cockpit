@@ -34,7 +34,10 @@ RUN apt-get update && apt-get install -y \
 	python3-pip \
 	python3-venv \
 	golang \
-	openjdk-21-jdk
+	openjdk-21-jdk \
+	eza \
+	shellcheck \
+	libsqlite3-dev
 
 # Docker
 RUN curl -sSf https://get.docker.com | sh
@@ -43,9 +46,13 @@ RUN curl -sSf https://get.docker.com | sh
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y && . /root/.bashrc \
 	&& cargo install tree-sitter-cli \
 	&& cargo install starship
+	&& cargo install starship --locked
+
+# Node
+RUN curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash && . ~/.bashrc && nvm install 18 && nvm use 18
 
 # Nvim
-RUN git clone https://github.com/Kraust/nvimdots.git /opt/.config/nvim
+RUN git clone https://github.com/Kraust/nvim.git /opt/.config/nvim
 
 # Go
 RUN git clone https://github.com/go-nv/goenv.git /opt/.goenv
