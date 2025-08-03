@@ -5,16 +5,12 @@ services:
     privileged: true
     network_mode: host
     restart: always
-    environment:
-      - GIT_CONFIG_GLOBAL=/root/.config/gitconfig/gitconfig
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ~/.ssh:/root/.ssh
-      - ~/.config/gitconfig:/opt/.config/gitconfig
       - /home:/home
       - /home3:/home3
       - /Eng:/Eng
       - root:/root
-    working_dir: /
+    working_dir: /root
 volumes:
   root:
